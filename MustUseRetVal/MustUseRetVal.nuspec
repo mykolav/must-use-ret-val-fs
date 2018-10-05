@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>MustUseRetVal</id>
+    <version>0.0.1</version>
+    <authors>Mykola Musiienko</authors>
+    <owners>Mykola Musiienko</owners>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <licenseUrl>https://github.com/mykolav/must-use-ret-val-fs/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/mykolav/must-use-ret-val-fs</projectUrl>
+    <iconUrl>https://avatars1.githubusercontent.com/u/14280254</iconUrl>
+    <description>"Must use return value" Roslyn code analyzer for C#</description>
+    <copyright>Copyright © Mykola Musiienko 2018</copyright>
+    <tags>roslyn roslyn-analyzer</tags>
+    <repository url="https://github.com/mykolav/must-use-ret-val-fs" />
+    <releaseNotes>Initial release</releaseNotes>  
+
+  </metadata>
+  <files>
+    <file src="bin\Release\netstandard1.6\MustUseRetVal.dll" target="analyzers\dotnet\cs\" />
+    <file src="bin\Release\netstandard1.6\MustUseRetVal.pdb" target="analyzers\dotnet\cs\" />
+    <file src="..\dependencies\FSharp.Core.dll" target="analyzers\dotnet\cs\" />
+    <file src="tools\*.ps1" target="tools\" />
+  </files>
+
+</package>
