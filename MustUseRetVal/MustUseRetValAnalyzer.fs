@@ -15,11 +15,11 @@ type public MustUseRetValAnalyzer() =
 
     static let diagnosticId = "UseRetVal"
     static let messageFormat = "The return value of '{0}' must be used."
-    static let description = "The return value of a `//[MustUseReturnValue]` method must be used."
+    static let description = "The return value of a `[MustUseReturnValue]` method must be used."
     static let descriptor = 
         DiagnosticDescriptor(
             id=diagnosticId,
-            title="A [MustUseReturnValue] method's return value is discarded implicitely.",
+            title="A [MustUseReturnValue] method's return value must be used.",
             messageFormat=messageFormat,
             category="Functional",
             defaultSeverity=DiagnosticSeverity.Error, 
