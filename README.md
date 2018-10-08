@@ -1,4 +1,4 @@
-# Emit a compile error if a method's return value is not used.
+# Emit a compilation error if a method's return value is not used.
 (This analyzer is based on [ReturnValueUsageAnalyzer](https://github.com/Richiban/Richiban.Analyzer/tree/master/ReturnValueUsageAnalyzer/ReturnValueUsageAnalyzer) by [Richard Gibson](https://github.com/Richiban)).
 
 ## Motivation
