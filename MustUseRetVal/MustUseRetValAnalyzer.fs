@@ -49,25 +49,10 @@ type public MustUseRetValAnalyzer() =
     member private this.mustUseReturnValue (methodSymbol: IMethodSymbol) =
         let MustUseRetVal = "MustUseReturnValueAttribute"
 
-        let isMarkedByMustUseRetValAttr (attrData: AttributeData) =
-            this.logInfo <| sprintf "\tattr: %s" attrData.AttributeClass.Name
-            attrData.AttributeClass.Name = MustUseRetVal
-
         if methodSymbol.ReturnsVoid
-        then this.logInfo <| sprintf "\treturns void"
-             false
-        else
-
-        try
-            let attrs = methodSymbol.GetAttributes()
-            if attrs.IsEmpty
-            then this.logInfo <| sprintf "\thas empty attribute list"
-                 false
-            else
-                 attrs |> Seq.exists isMarkedByMustUseRetValAttr
-        with
-        | ex -> this.logInfo (ex.ToString())
-                false
+        then false
+        else methodSymbol.GetAttributes() 
+             |> Seq.exists (fun attrData -> attrData.AttributeClass.Name = MustUseRetVal)
 
     member private this.Analyze(context: SyntaxNodeAnalysisContext) =
         maybe {
@@ -75,8 +60,6 @@ type public MustUseRetValAnalyzer() =
             let! exprStmtSyntax = context.Node |> Option.ofType<ExpressionStatementSyntax>
             let! invocationExprSyntax = exprStmtSyntax.Expression |> Option.ofType<InvocationExpressionSyntax>
             let! methodSymbol = sema.GetSymbolInfo(invocationExprSyntax).Symbol |> Option.ofType<IMethodSymbol>
-
-            this.logInfo <| sprintf "this.Analyze: %s" methodSymbol.Name
 
             if this.mustUseReturnValue methodSymbol
             then return context.ReportDiagnostic(
