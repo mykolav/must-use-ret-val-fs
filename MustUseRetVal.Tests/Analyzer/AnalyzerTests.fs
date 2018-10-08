@@ -33,7 +33,7 @@ let analyzerTests =
                     } } 
             "
         }
-        test "Method which is not marked does not trigger diagnostics" {
+        test "Method which is not annoated does not trigger diagnostics" {
             Expect.emptyDiagnostics @"
                 namespace Frobnitz
                 {
@@ -60,7 +60,7 @@ let analyzerTests =
                 }
             "
         }
-        test "Method with a commented out attribute does not triggers diagnostics" {
+        test "Method with the commented out attribute does not trigger diagnostics" {
             Expect.emptyDiagnostics @"
                 namespace Frobnitz
                 {
@@ -76,7 +76,22 @@ let analyzerTests =
                 }
             "
         }
-        test "Method marked by an attribute triggers diagnostics" {
+        test "Method annoated by the attribute when return value is used does not trigger diagnostics" {
+            Expect.emptyDiagnostics @"
+                namespace Frobnitz
+                {
+                    [System.AttributeUsage(System.AttributeTargets.Method)]  
+                    class MustUseReturnValueAttribute: System.Attribute {}
+
+                    class Wombat
+                    {
+                        [MustUseReturnValue]
+                        string Gork() => ""Gork!"";
+                        void Bork() { var _ = Gork(); } 
+                    } }
+            "
+        }
+        test "Method annoated by the attribute triggers diagnostics" {
             let snippet = @"
                 namespace Frobnitz
                 {
