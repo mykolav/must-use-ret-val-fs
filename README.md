@@ -1,6 +1,3 @@
-# UNDER CONSTRUCTION
-This is work in progress. The NuGet package doesn't exist yet.  
-
 # Emit a compile error if a method's return value is not used.
 (This analyzer is based on [ReturnValueUsageAnalyzer](https://github.com/Richiban/Richiban.Analyzer/tree/master/ReturnValueUsageAnalyzer/ReturnValueUsageAnalyzer) by [Richard Gibson](https://github.com/Richiban)).
 
@@ -46,16 +43,24 @@ This will download all the binaries, and add necessary analyzer references to yo
 
 ## How to use it?
 
-1. Install the nuget package.
-2. In the project where you installed the package add the `//[MustUseReturnValue]` comment   
-   above a method the return value of which must not be ignored by the calling code.
+1. Introduce `MustUseReturnValueAttribute` attribute to your solution.  
+   I. e., create your own  
+   ```csharp
+   [AttributeUsage(AttributeTargets.Method)]
+   class MustUseReturnValueAttribute : Attribute { }
+   ```
+   Or use an existing one.   
+   For example, from ReSharper's [JetBrains.Annotations](https://www.nuget.org/packages/JetBrains.Annotations).  
+   If you decide to go with `JetBrains.Annotations`, make sure to define the [`JETBRAINS_ANNOTATIONS`](https://blog.jetbrains.com/dotnet/2015/08/12/how-to-use-jetbrains-annotations-to-improve-resharper-inspections/) symbol &mdash; so that the `MustUseReturnValue` attribute is compiled into the resulting assembly.
+2. Pick a method the return value of which must not be ignored by the calling code. Annotate the method with the `[MustUseReturnValue]` attribute.
+3. Install the [nuget package](https://www.nuget.org/packages/MustUseRetVal) into the project(s) which contain code calling the annotated method(s).
 
 ## How does it work?
 
-1. This analyzer looks at an invocation expression (e.g., a method call).
-2. It then finds the method's definition.
-3. If the definition is prefixed with a comment of the form `//[MustUseReturnValue]`,  
-   the analyzer requires the method's return value must not be discarded implicitely.
+1. This analyzer looks at expression statements.
+2. If an expression statement's underlying expression is an invocation expression (e.g., a method call), the analyzer then finds the method's definition.
+3. If the definition is annotated with a `[MustUseReturnValue]` attribute (the comparison is performed by name),  
+   the analyzer requires the method's return value not to be discarded implicitely.
 
 ![The MustUseRetVal analyzer in action](./must-use-ret-val-demo.gif)
 
