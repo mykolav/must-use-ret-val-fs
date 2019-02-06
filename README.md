@@ -36,11 +36,11 @@ To get back to the loggin example, let's say the `Log` class looks something lik
 public class Log {
     // ...
     
-    [MustUseRetVal]
+    [MustUseReturnValue]
     public static Log Message(string message) { return new Log(message); }
-    [MustUseRetVal]
+    [MustUseReturnValue]
     public Log Severity(SeverityKind severity) { /* ... */ return this; }
-    [MustUseRetVal]
+    [MustUseReturnValue]
     public Log User(string userName) { /* ... */ return this; }
     
     public void Write() { /* ... */ }
@@ -51,7 +51,7 @@ OK, so, the programmer forgot to end a chain with a call to the `Write` method:
 ```csharp
 Log.Message("Oh, noes!").Severity(Severity.Bad).User("jsmith");
 ```
-As the `User` method is marked with `[MustUseRetVal]`, the code above will cause the analyzer to emit **a compile-time error** along these lines: 
+As the `User` method is marked with `[MustUseReturnValue]`, the code above will cause the analyzer to emit **a compile-time error** along these lines: 
 ```
 The return value of `User` must be used.
 ```
