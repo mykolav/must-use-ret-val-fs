@@ -47,10 +47,14 @@ public class Log {
 }
 ```
 
-OK, let's say the programmer forgot to end a chain with the call to `Write()` method:
-`Log.Message("Oh, noes!").Severity(Severity.Bad).User("jsmith");`
-
-As the `User` method is marked with `[MustUseRetVal]`, the code above will cause the analyzer to emit **a compile-time error** along these lines: "The return value of `User` must be used."
+OK, let's say the programmer forgot to end a chain with a call to the `Write` method:  
+```csharp
+Log.Message("Oh, noes!").Severity(Severity.Bad).User("jsmith");
+```
+As the `User` method is marked with `[MustUseRetVal]`, the code above will cause the analyzer to emit **a compile-time error** along these lines: 
+```
+The return value of `User` must be used.
+```
 
 ## Download and install
 
