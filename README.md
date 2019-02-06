@@ -28,7 +28,29 @@ Specifically, the analyzer makes it possible to enforce calling of the terminati
 >  
 > So why is this so bad? For one, it would be very easy to forget the `Write()` method at the end of the chain. This technique requires the programmer to remember something that **the compiler can’t check** and that wouldn’t be picked up at runtime if they forgot.
 
-Well, the terminating method isn't that bad anymore! As now the [MustUseRetVal](https://www.nuget.org/packages/MustUseRetVal) analyzer can emit a compile-time error if the terminating method call is missing.
+Well, the [MustUseRetVal](https://www.nuget.org/packages/MustUseRetVal) analyzer can emit a compile-time error if the terminating method call is missing.  
+And so this approach isn't that bad anymore!
+
+To get back to the loggin example, let's say the `Log` class looks something like this:
+```csharp
+public class Log {
+    // ...
+    
+    [MustUseRetVal]
+    public static Log Message(string message) { return new Log(message); }
+    [MustUseRetVal]
+    public Log Severity(SeverityKind severity) { /* ... */ return this; }
+    [MustUseRetVal]
+    public Log User(string userName) { /* ... */ return this; }
+    
+    public void Write() { /* ... */ }
+}
+```
+
+OK, let's say the programmer forgot to end a chain with the call to `Write()` method:
+`Log.Message("Oh, noes!").Severity(Severity.Bad).User("jsmith");`
+
+As the `User` method is marked with `[MustUseRetVal]`, the code above will cause the analyzer to emit **a compile-time error** along these lines: "The return value of `User` must be used."
 
 ## Download and install
 
