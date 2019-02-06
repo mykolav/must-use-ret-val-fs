@@ -47,7 +47,7 @@ public class Log {
 }
 ```
 
-OK, let's say the programmer forgot to end a chain with a call to the `Write` method:  
+OK, so, the programmer forgot to end a chain with a call to the `Write` method:  
 ```csharp
 Log.Message("Oh, noes!").Severity(Severity.Bad).User("jsmith");
 ```
