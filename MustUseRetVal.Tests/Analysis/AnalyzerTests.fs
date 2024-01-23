@@ -160,3 +160,34 @@ type AnalyzerTests() =
                                      column=31)
 
         Assert.That(diagnostics).Match([ expectedDiagnostic ])
+
+
+    [<Fact>]
+    member _.``Discarding the object created by unannotated primary constructor does not trigger diagnostics``() =
+        let diagnostics = Diagnostics.Of(CSharpProgram.WithClasses(@"
+            record Wombat()
+            {
+                void Bork() { new Wombat(); }
+            }
+        "))
+
+        Assert.That(diagnostics).AreEmpty()
+
+
+    [<Fact>]
+    member _.``Discarding the object created by primary constructor triggers diagnostics``() =
+        let diagnostics = Diagnostics.Of(CSharpProgram.WithClasses(@"
+            [MustUseReturnValue]
+            record Wombat()
+            {
+                void Bork() { new Wombat(); }
+            }
+        "))
+
+        let expectedDiagnostic = ExpectedDiagnostic.MustUseReturnValue(
+                                     invokedMethod="Wombat..ctor",
+                                     fileName="Test0.cs",
+                                     line=8,
+                                     column=31)
+
+        Assert.That(diagnostics).Match([ expectedDiagnostic ])

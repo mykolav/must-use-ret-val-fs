@@ -38,6 +38,31 @@ if (isGranted)
     WriteToDatabase();
 ```
 
+### Supported method kinds
+
+The analyzer supports the following method kinds  
+- Regular instance and static methods
+- Regular constructors
+- Primary constructors 
+
+To mark a record's primary constructor, apply `[MustUseReturnValue]` to the record itself.
+
+```csharp
+[MustUseReturnValue]
+record Character(string Name, int PowerLevel) {}
+
+[MustUseReturnValue]
+record struct CharacterStruct(string Name, int PowerLevel) {}
+
+// Elsewhere in your code:
+// if the object created by primary constructor of `Character` or `CharacterStruct` is discarded,
+// the analyzer will emit an error.
+var character = new Character("Goku", 9001);
+var characterStruct = new CharacterStruct("Goku", 9001);
+```
+
+Please note, in the code above the attribute only applies to the primary constructors of the records. If a record has additional constructors, you can mark them with this attribute individually in a usual way.
+
 ## Download and install
 
 Install the [MustUseRetVal](https://www.nuget.org/packages/MustUseRetVal) nuget package.
