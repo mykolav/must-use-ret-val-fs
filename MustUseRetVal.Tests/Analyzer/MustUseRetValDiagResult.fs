@@ -3,7 +3,7 @@
 open System
 open Microsoft.CodeAnalysis
 open DiagnosticResult
-open MustUseRetVal.Analyzer
+open MustUseReturnValue.Analyzer
 
 type MustUseRetValDiagResult() =
 
@@ -12,9 +12,9 @@ type MustUseRetValDiagResult() =
                          line: uint32,
                          column: uint32) =
 
-        let message = String.Format(MustUseRetValAnalyzer.MessageFormat, 
+        let message = String.Format(DiagnosticDescriptors.MustUseReturnValue.MessageFormat.ToString(),
                                     invokedMethod)
-        let diagResult = DiagResult(id       = MustUseRetValAnalyzer.DiagnosticId,
+        let diagResult = DiagResult(id       = DiagnosticDescriptors.MustUseReturnValue.Id,
                                     message  = message,
                                     severity = DiagnosticSeverity.Error,
                                     location = {Path=fileName; Line=line; Col=column})

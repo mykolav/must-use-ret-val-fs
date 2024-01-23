@@ -10,7 +10,8 @@
     <Compile Include="Support\SeqExtensions.fs" />
     <Compile Include="Support\CSharpAdapters.fs" />
     <Compile Include="Support\MaybeBuilder.fs" />
-    <Compile Include="MustUseRetValAnalyzer.fs" />
+    <Compile Include="DiagnosticDescriptors.fs" />
+    <Compile Include="MustUseReturnValueAnalyzer.fs" />
   </ItemGroup>
 
   <ItemGroup>

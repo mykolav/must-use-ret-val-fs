@@ -2,7 +2,7 @@
 
 open Expecto
 open Support.MustUseRetValDiagResult
-open MustUseRetVal.Analyzer
+open MustUseReturnValue.Analyzer
 
 module private Expect =
     open Support.DiagnosticMatcher
@@ -10,15 +10,15 @@ module private Expect =
     open Support.DocumentFactory
 
     let toBeEmittedFrom code expectedDiags =
-        let analyzer = MustUseRetValAnalyzer()
-        expectedDiags 
-        |> Expect.diagnosticsToMatch analyzer 
+        let analyzer = MustUseReturnValueAnalyzer()
+        expectedDiags
+        |> Expect.diagnosticsToMatch analyzer
                                      (analyzer.GetSortedDiagnostics(CSharp, [code]))
 
     let emptyDiagnostics code = [||] |> toBeEmittedFrom code
 
 [<Tests>]
-let analyzerTests = 
+let analyzerTests =
     testList "The MustUseRetVal analyzer tests" [
         test "Empty code does not trigger diagnostics" {
             Expect.emptyDiagnostics @"";
@@ -29,8 +29,8 @@ let analyzerTests =
                 {
                     class Wombat
                     {
-                        void Bork() { Gork(); } 
-                    } } 
+                        void Bork() { Gork(); }
+                    } }
             "
         }
         test "Method which is not annoated does not trigger diagnostics" {
@@ -40,8 +40,8 @@ let analyzerTests =
                     class Wombat
                     {
                         string Gork() => ""Gork!"";
-                        void Bork() { Gork(); } 
-                    } } 
+                        void Bork() { Gork(); }
+                    } }
             "
         }
         test "Void method does not trigger diagnostics" {
@@ -52,10 +52,10 @@ let analyzerTests =
                     {
                         [MustUseReturnValue]
                         void Gork() {}
-                        void Bork() { Gork(); } 
+                        void Bork() { Gork(); }
                     }
 
-                    [System.AttributeUsage(System.AttributeTargets.Method)]  
+                    [System.AttributeUsage(System.AttributeTargets.Method)]
                     class MustUseReturnValueAttribute: System.Attribute {}
                 }
             "
@@ -68,10 +68,10 @@ let analyzerTests =
                     {
                         // [MustUseReturnValue]
                         string Gork() => ""Gork!"";
-                        void Bork() { Gork(); } 
+                        void Bork() { Gork(); }
                     }
 
-                    [System.AttributeUsage(System.AttributeTargets.Method)]  
+                    [System.AttributeUsage(System.AttributeTargets.Method)]
                     class MustUseReturnValueAttribute: System.Attribute {}
                 }
             "
@@ -80,14 +80,14 @@ let analyzerTests =
             Expect.emptyDiagnostics @"
                 namespace Frobnitz
                 {
-                    [System.AttributeUsage(System.AttributeTargets.Method)]  
+                    [System.AttributeUsage(System.AttributeTargets.Method)]
                     class MustUseReturnValueAttribute: System.Attribute {}
 
                     class Wombat
                     {
                         [MustUseReturnValue]
                         string Gork() => ""Gork!"";
-                        void Bork() { var _ = Gork(); } 
+                        void Bork() { var _ = Gork(); }
                     } }
             "
         }
@@ -95,19 +95,19 @@ let analyzerTests =
             let snippet = @"
                 namespace Frobnitz
                 {
-                    [System.AttributeUsage(System.AttributeTargets.Method)]  
+                    [System.AttributeUsage(System.AttributeTargets.Method)]
                     class MustUseReturnValueAttribute: System.Attribute {}
 
                     class Wombat
                     {
                         [MustUseReturnValue]
                         string Gork() => ""Gork!"";
-                        void Bork() { Gork(); } 
+                        void Bork() { Gork(); }
                     } }
             "
 
             let mustUseRetValDiag = MustUseRetValDiagResult
-                                        .Create(invokedMethod="Gork",
+                                        .Create(invokedMethod="Wombat.Gork",
                                                 fileName="Test0.cs", line=11u, column=39u)
 
             [|mustUseRetValDiag|] |> Expect.toBeEmittedFrom snippet

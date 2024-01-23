@@ -18,6 +18,7 @@
     <Compile Include="Support\DocumentExtensions.fs" />
     <Compile Include="Analyzer\MustUseRetValDiagResult.fs" />
     <Compile Include="Analyzer\AnalyzerTests.fs" />
+    <Compile Include="Main.fs" />
   </ItemGroup>
 
   <ItemGroup>
