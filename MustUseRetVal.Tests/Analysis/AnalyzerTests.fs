@@ -40,7 +40,7 @@ type AnalyzerTests() =
 
 
     [<Fact>]
-    member _.``Method which is not annotated does not trigger diagnostics``() =
+    member _.``Unannotated method does not trigger diagnostics``() =
         let diagnostics = Diagnostics.Of(CSharpProgram.WithClasses(@"
             class Wombat
             {
@@ -81,7 +81,7 @@ type AnalyzerTests() =
 
 
     [<Fact>]
-    member _.``Annotated method invocation with used return value does not trigger diagnostics``() =
+    member _.``Return value assigned to a variable does not trigger diagnostics``() =
         let diagnostics = Diagnostics.Of(CSharpProgram.WithClasses(@"
             class Wombat
             {
@@ -95,7 +95,22 @@ type AnalyzerTests() =
 
 
     [<Fact>]
-    member _.``Method annotated by the attribute triggers diagnostics``() =
+    member _.``Return value passed as argument does not trigger diagnostics``() =
+        let diagnostics = Diagnostics.Of(CSharpProgram.WithClasses(@"
+            class Wombat
+            {
+                [MustUseReturnValue]
+                string Gork() => ""Gork!"";
+                void Pork(string gork) {}
+                void Bork() { Pork(Gork()); }
+            }
+        "))
+
+        Assert.That(diagnostics).AreEmpty()
+
+
+    [<Fact>]
+    member _.``Discarding return value triggers diagnostics``() =
         let diagnostics = Diagnostics.Of(CSharpProgram.WithClasses(@"
             class Wombat
             {
@@ -107,6 +122,39 @@ type AnalyzerTests() =
 
         let expectedDiagnostic = ExpectedDiagnostic.MustUseReturnValue(
                                      invokedMethod="Wombat.Gork",
+                                     fileName="Test0.cs",
+                                     line=9,
+                                     column=31)
+
+        Assert.That(diagnostics).Match([ expectedDiagnostic ])
+
+
+    [<Fact>]
+    member _.``Discarding the object created by unannotated constructor does not trigger diagnostics``() =
+        let diagnostics = Diagnostics.Of(CSharpProgram.WithClasses(@"
+            class Wombat
+            {
+                Wombat() {}
+                void Bork() { new Wombat(); }
+            }
+        "))
+
+        Assert.That(diagnostics).AreEmpty()
+
+
+    [<Fact>]
+    member _.``Discarding the created object triggers diagnostics``() =
+        let diagnostics = Diagnostics.Of(CSharpProgram.WithClasses(@"
+            class Wombat
+            {
+                [MustUseReturnValue]
+                Wombat() {}
+                void Bork() { new Wombat(); }
+            }
+        "))
+
+        let expectedDiagnostic = ExpectedDiagnostic.MustUseReturnValue(
+                                     invokedMethod="Wombat..ctor",
                                      fileName="Test0.cs",
                                      line=9,
                                      column=31)

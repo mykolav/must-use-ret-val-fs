@@ -79,6 +79,6 @@ type public MustUseReturnValueAnalyzer() =
 
 
     member private this.MustUseReturnValueOf(methodSymbol: IMethodSymbol): bool =
-        (not methodSymbol.ReturnsVoid) &&
+        (methodSymbol.MethodKind = MethodKind.Constructor || not methodSymbol.ReturnsVoid) &&
         methodSymbol.GetAttributes() |> Seq.exists (fun it ->
             it.AttributeClass.Name = "MustUseReturnValueAttribute")
