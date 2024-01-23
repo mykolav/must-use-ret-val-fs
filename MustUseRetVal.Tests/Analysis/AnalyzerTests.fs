@@ -191,3 +191,44 @@ type AnalyzerTests() =
                                      column=31)
 
         Assert.That(diagnostics).Match([ expectedDiagnostic ])
+
+
+    [<Fact>]
+    member _.``Unannotated extension method does not trigger diagnostics``() =
+        let diagnostics = Diagnostics.Of(CSharpProgram.WithClasses(@"
+            class Wombat
+            {
+                void Bork() { new Wombat().Gork(); }
+            }
+
+            static class WombatExtensions
+            {
+                public static string Gork(this Wombat wombat) => ""Gork!"";
+            }
+        "))
+
+        Assert.That(diagnostics).AreEmpty()
+
+
+    [<Fact>]
+    member _.``Annotated extension method triggers diagnostics``() =
+        let diagnostics = Diagnostics.Of(CSharpProgram.WithClasses(@"
+            class Wombat
+            {
+                void Bork() { new Wombat().Gork(); }
+            }
+
+            static class WombatExtensions
+            {
+                [MustUseReturnValue]
+                public static string Gork(this Wombat wombat) => ""Gork!"";
+            }
+        "))
+
+        let expectedDiagnostic = ExpectedDiagnostic.MustUseReturnValue(
+                                     invokedMethod="WombatExtensions.Gork",
+                                     fileName="Test0.cs",
+                                     line=7,
+                                     column=31)
+
+        Assert.That(diagnostics).Match([ expectedDiagnostic ])
