@@ -1,6 +1,6 @@
 # Emit a compilation error if a method's return value is ignored.
 
-<!-- [![Build status](https://ci.appveyor.com/api/projects/status/kr7293hw0oswn9fn?svg=true)](https://ci.appveyor.com/project/mykolav/must-use-ret-val-fs) -->
+[![Build status](https://ci.appveyor.com/api/projects/status/nqx9jyt0q2hlep98?svg=true)](https://ci.appveyor.com/project/mykolav/must-use-ret-val-fs)
 
 This project contains a Roslyn code analyzer lets you make sure a method's return value is not silently ignored/discarded.
 
