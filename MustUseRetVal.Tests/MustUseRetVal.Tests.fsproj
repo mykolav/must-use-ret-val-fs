@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
+    <OutputType>Library</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <LangVersion>8.0</LangVersion>
 
@@ -10,15 +10,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="Support\DiagnosticResult.fs" />
-    <Compile Include="Support\DiagnosticFormatter.fs" />
-    <Compile Include="Support\DocumentFactory.fs" />
-    <Compile Include="Support\DiagnosticMatcher.fs" />
-    <Compile Include="Support\DiagnosticProvider.fs" />
-    <Compile Include="Support\DocumentExtensions.fs" />
-    <Compile Include="Analyzer\MustUseRetValDiagResult.fs" />
-    <Compile Include="Analyzer\AnalyzerTests.fs" />
-    <Compile Include="Main.fs" />
+    <Compile Include="Support\Assert.fs" />
+    <Compile Include="Support\CSharpProgram.fs" />
+    <Compile Include="Support\DocumentCreationExtensions.fs" />
+    <Compile Include="Support\DiagnosticAnalyzerExtensions.fs" />
+    <Compile Include="Analysis\Support\ExpectedDiagnostic.fs" />
+    <Compile Include="Analysis\Support\DiagnosticAsserts.fs" />
+    <Compile Include="Analysis\AnalyzerTests.fs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -26,8 +24,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Expecto" Version="10.1.0" />
-    <PackageReference Include="YoloDev.Expecto.TestSdk" Version="0.14.3" />
     <PackageReference Update="FSharp.Core" Version="8.0.101" />
 
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
