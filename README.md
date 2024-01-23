@@ -1,59 +1,41 @@
-# Emit a compilation error if a method's return value is not used.
-(This analyzer is based on [ReturnValueUsageAnalyzer](https://github.com/Richiban/Richiban.Analyzer/tree/master/ReturnValueUsageAnalyzer/ReturnValueUsageAnalyzer) by [Richard Gibson](https://github.com/Richiban)).
+# Emit a compilation error if a method's return value is ignored.
 
-## Motivation
+<!-- [![Build status](https://ci.appveyor.com/api/projects/status/kr7293hw0oswn9fn?svg=true)](https://ci.appveyor.com/project/mykolav/must-use-ret-val-fs) -->
 
-The motivation is to help mitigate [the finishing problem of fluent interfaces](https://daveaglick.com/posts/method-chaining-fluent-interfaces-and-the-finishing-problem).
+This project contains a Roslyn code analyzer lets you make sure a method's return value is not silently ignored/discarded.
 
-> [...] a particular challenge of fluent interfaces and method chaining known as the “finishing problem.” To illustrate it, consider a logging framework. It might allow some number of chained methods such as Severity(), Source(), User(), CallSite(), etc.:  
->  
-> `Log.Message("Oh, noes!").Severity(Severity.Bad).User("jsmith");`  
->  
-> Looks nice, right? The problem here is that the logging framework doesn’t know when to write the log message to the log file.  
-Do I do it in the `User()` method?  
-What if I don’t use the `User()` method or I put it before the `Severity()` method, then when do I write to the file?  
-This problem occurs any time you want the entire result of a method chain to take some external action other than manipulating the context of the chain.
+![The MustUseRetVal analyzer in action](./must-use-ret-val-demo.gif)
 
-Specifically, the analyzer makes it possible to enforce calling of the terminating method.
+## How to use it?
 
-> ## Terminating Method
-> 
-> This first technique is probably one of the easier [...]  
-> It requires the introduction of a method that serves to complete the chain and act on it’s final context. For example:
-> 
-> `Log.Message("Oh, noes!").Severity(Severity.Bad).User("jsmith").Write();`
-> 
-> See how we added the `Write()` method there at the end?  
-> That `Write()` method takes the chain context, writes it to disk, and doesn’t return anything (effectively stopping the chain).  
->  
-> So why is this so bad? For one, it would be very easy to forget the `Write()` method at the end of the chain. This technique requires the programmer to remember something that **the compiler can’t check** and that wouldn’t be picked up at runtime if they forgot.
+Install the [nuget package](https://www.nuget.org/packages/MustUseRetVal).
 
-Well, the [MustUseRetVal](https://www.nuget.org/packages/MustUseRetVal) analyzer can emit a compile-time error if the terminating method call is missing.  
-And so this approach isn't that bad anymore!
+Introduce a `MustUseReturnValueAttribute` attribute to your solution. In other words, place the following C# code in an appropriate spot in your solution.
 
-To get back to the loggin example, let's say the `Log` class looks something like this:
 ```csharp
-public class Log {
-    // ...
-    
-    [MustUseReturnValue]
-    public static Log Message(string message) { return new Log(message); }
-    [MustUseReturnValue]
-    public Log Severity(SeverityKind severity) { /* ... */ return this; }
-    [MustUseReturnValue]
-    public Log User(string userName) { /* ... */ return this; }
-    
-    public void Write() { /* ... */ }
+[AttributeUsage(AttributeTargets.Constructor | AttributeTargets.Method | AttributeTargets.Class | AttributeTargets.Struct)]
+class MustUseReturnValueAttribute : Attribute { }
+```
+
+Or use an existing `MustUseReturnValueAttribute`. For example, from [JetBrains.Annotations](https://www.nuget.org/packages/JetBrains.Annotations).
+
+If you decide to go with `JetBrains.Annotations`, make sure to define the [`JETBRAINS_ANNOTATIONS`](https://blog.jetbrains.com/dotnet/2015/08/12/how-to-use-jetbrains-annotations-to-improve-resharper-inspections/) symbol &mdash; so that the `MustUseReturnValue` attribute is compiled into the resulting assembly.
+
+Apply the `[MustUseReturnValue]` attribute to the methods that must not have their return values silently ignored.
+
+```csharp
+[MustUseReturnValue]
+public bool IsGrantedDatabaseWritePermission() {
+   // ...
 }
-```
 
-OK, so, the programmer forgot to end a chain with a call to the `Write` method:  
-```csharp
-Log.Message("Oh, noes!").Severity(Severity.Bad).User("jsmith");
-```
-As the `User` method is marked with `[MustUseReturnValue]`, the code above will cause the analyzer to emit **a compile-time error** along these lines: 
-```
-The return value of `User` must be used.
+// Elsewhere in your code:
+// The value returned from `IsGrantedDatabaseWritePermission` must be
+// assigned to a variable or checked in an if statement, etc.
+// Otherwise, the analyzer will emit an error.
+var isGranted = IsGrantedDatabaseWritePermission();
+if (isGranted)
+    WriteToDatabase();
 ```
 
 ## Download and install
@@ -64,35 +46,82 @@ For example, run the following command in the [NuGet Package Manager Console](ht
 ```powershell
 Install-Package MustUseRetVal
 ```
-   
+
 This will download all the binaries, and add necessary analyzer references to your project.
 
-## How to use it?
+## Configuration
 
-1. Introduce `MustUseReturnValueAttribute` attribute to your solution.  
-   I. e., create your own  
-   ```csharp
-   [AttributeUsage(AttributeTargets.Method)]
-   class MustUseReturnValueAttribute : Attribute { }
-   ```
-   Or use an existing one.   
-   For example, from ReSharper's [JetBrains.Annotations](https://www.nuget.org/packages/JetBrains.Annotations).  
-   If you decide to go with `JetBrains.Annotations`, make sure to define the [`JETBRAINS_ANNOTATIONS`](https://blog.jetbrains.com/dotnet/2015/08/12/how-to-use-jetbrains-annotations-to-improve-resharper-inspections/) symbol &mdash; so that the `MustUseReturnValue` attribute is compiled into the resulting assembly.
-2. Pick a method the return value of which must not be ignored by the calling code. Annotate the method with the `[MustUseReturnValue]` attribute.
-3. Install the [nuget package](https://www.nuget.org/packages/MustUseRetVal) into the project(s) which contain code calling the annotated method(s).
+Starting in Visual Studio 2019 version 16.3, you can [configure the severity of analyzer rules, or diagnostics](https://learn.microsoft.com/en-us/visualstudio/code-quality/use-roslyn-analyzers?view=vs-2022#configure-severity-levels), in an EditorConfig file, from the light bulb menu, and the error list.
 
-## How does it work?
+You can add the following to the `[*.cs]` section of your .editorconfig.
 
-1. This analyzer looks at expression statements.
-2. If an expression statement's underlying expression is an invocation expression (e.g., a method call), the analyzer then finds the method's definition.
-3. If the definition is annotated with a `[MustUseReturnValue]` attribute (the comparison is performed by name),  
-   the analyzer requires the method's return value not to be discarded implicitely.
+```ini
+[*.cs]
+dotnet_diagnostic.MustUseReturnValue.severity = warning
+```
 
-![The MustUseRetVal analyzer in action](./must-use-ret-val-demo.gif)
+The possible severity values are:
+- `error`
+- `warning`
+- `suggestion`
+- `silent`
+- `none`
+- `default` (in case of this analyzer, it's equal to `error`)
 
-## Technical details
+Please take a look at [the documentation](https://learn.microsoft.com/en-us/visualstudio/code-quality/use-roslyn-analyzers?view=vs-2022#configure-severity-levels) for a detailed description.
 
-The analyzer, code-fix provider, and tests are implemented in F#
+## The finishing problem of fluent interfaces
+
+This analyzer can help mitigate [the finishing problem of fluent interfaces](https://daveaglick.com/posts/method-chaining-fluent-interfaces-and-the-finishing-problem). Quoting the relevant portions from the linked post:
+
+> To illustrate [the finishing problem], consider a logging framework. It might allow some number of chained methods such as `Severity()`, `Source()`, `User()`, `CallSite()`, etc.:  
+>  
+> `Log.Message("Oh, noes!").Severity(Severity.Bad).User("jsmith");`  
+>  
+> Looks nice, right? The problem here is that the logging framework doesn’t know when to write the log message to the log file.  
+> 
+> Do I do it in the `User()` method? What if I don’t use the `User()` method or I put it before the `Severity()` method, then when do I write to the file?  
+> 
+> This problem occurs any time you want the entire result of a method chain to take some external action other than manipulating the context of the chain.
+>
+>  [...]
+>
+> ## Terminating Method
+> 
+> [Addressing the problem described above] requires the introduction of a method that serves to complete the chain and act on it’s final context. For example:
+> 
+> `Log.Message("Oh, noes!").Severity(Severity.Bad).User("jsmith").Write();`
+> 
+> See how we added the `Write()` method there at the end? That `Write()` method takes the chain context, writes it to disk, and doesn’t return anything (effectively stopping the chain).
+>  
+> So why is this so bad? For one, it would be very easy to forget the `Write()` method at the end of the chain. This technique requires the programmer to remember something that **the compiler can’t check** and that wouldn’t be picked up at runtime if they forgot.
+
+Lets apply the analyzer to the logging example and see how it helps enforce a call to the terminating method.
+```csharp
+public class Log 
+{
+    // ...
+    
+    [MustUseReturnValue]
+    public static Log Message(string message) { return new Log(message); }
+    [MustUseReturnValue]
+    public Log Severity(SeverityKind severity) { /* ... */ return this; }
+    [MustUseReturnValue]
+    public Log User(string userName) { /* ... */ return this; }
+    
+    // This method is supposed to be called to indicate a chain of fluent calls is complete.
+    // Therefore, it does not return anything and is not marked with [MustUseReturnValue]. 
+    public void Write() { /* ... */ }
+}
+
+
+// Elsewhere in the code:
+Log.Message("Oh, noes!").Severity(Severity.Bad).User("jsmith");
+
+// As the programmer forgets to call `Write` in the line above,
+// the analyzer will emit a compile-time error: 
+// "The return value of `Log.User` must be used"
+```
 
 # Thank you!
 
@@ -102,5 +131,4 @@ The analyzer, code-fix provider, and tests are implemented in F#
 
 # License
 
-The [MustUseRetVal](https://github.com/mykolav/must-use-ret-val-fs) analyzer and code-fix provider are licensed under the MIT license.  
-So they can be used freely in commercial applications.
+The analyzer and code-fix provider are licensed under the MIT license.
