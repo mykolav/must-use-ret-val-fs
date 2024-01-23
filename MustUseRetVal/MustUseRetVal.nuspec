@@ -10,7 +10,7 @@
     <projectUrl>https://github.com/mykolav/must-use-ret-val-fs</projectUrl>
     <repository type="git" url="https://github.com/mykolav/must-use-ret-val-fs" />
     <icon>icon.png</icon>
-    <description>"Must use return value" Roslyn code analyzer for C#</description>
+    <description>Must use return value: a Roslyn code analyzer for C#</description>
     <copyright>Copyright © Mykola Musiienko 2024</copyright>
     <tags>roslyn roslyn-analyzer return-value nodiscard</tags>
     <releaseNotes>Add support for extension methods, constructors, primary constructors</releaseNotes>
