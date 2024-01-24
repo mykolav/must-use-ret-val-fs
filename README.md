@@ -2,7 +2,7 @@
 
 [![Build status](https://ci.appveyor.com/api/projects/status/nqx9jyt0q2hlep98?svg=true)](https://ci.appveyor.com/project/mykolav/must-use-ret-val-fs)
 
-This project contains a Roslyn code analyzer lets you make sure a method's return value is not silently ignored/discarded.
+This project contains a Roslyn code analyzer that lets you make sure a method's return value is not silently ignored/discarded.
 
 ![The MustUseRetVal analyzer in action](./must-use-ret-val-demo.gif)
 
@@ -42,6 +42,7 @@ if (isGranted)
 
 The analyzer supports the following method kinds  
 - Regular instance and static methods
+- Extension methods
 - Regular constructors
 - Primary constructors 
 
